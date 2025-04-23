@@ -8,11 +8,10 @@ app.use(express.json());
 
 // Render-friendly Supabase connection using Transaction Pooler (IPv4-compatible)
 const pool = new Pool({
-  connectionString: "postgresql://postgres:Iamno1%40%40@aws-0-us-east-1.pooler.supabase.com:6543/postgres",
-  ssl: {
-    rejectUnauthorized: false
-  }
+  connectionString: "postgresql://postgres.uimqfvscwkckbxsrtlbg:Iamno1%40%40@aws-0-us-east-1.pooler.supabase.com:6543/postgres",
+  ssl: { rejectUnauthorized: false }
 });
+
 
 // Endpoint to execute SQL queries
 app.post("/execute-sql", async (req, res) => {
