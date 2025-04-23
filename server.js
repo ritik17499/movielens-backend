@@ -1,42 +1,36 @@
 const express = require("express");
 const cors = require("cors");
 const { Pool } = require("pg");
-const dns = require("dns");
 
-// Resolve Supabase hostname to IPv4 to avoid IPv6 errors on Render
-dns.lookup("db.uimqfvscwkckbxsrtlbg.supabase.co", { family: 4 }, (err, address) => {
-  if (err) throw err;
+const app = express();
+app.use(cors());
+app.use(express.json());
 
-  const pool = new Pool({
-    host: address,
-    port: 5432,
-    user: "postgres",
-    password: "Iamno1@@",
-    database: "postgres",
-    ssl: { rejectUnauthorized: false }
-  });
+// Direct Supabase connection string with encoded password (@@ → %40%40)
+const pool = new Pool({
+  connectionString: "postgresql://postgres:Iamno1%40%40@db.uimqfvscwkckbxsrtlbg.supabase.co:5432/postgres",
+  ssl: {
+    rejectUnauthorized: false // Supabase requires SSL
+  }
+});
 
-  const app = express();
-  app.use(cors());
-  app.use(express.json());
+// Endpoint to execute SQL
+app.post("/execute-sql", async (req, res) => {
+  const { query } = req.body;
 
-  // SQL execution endpoint
-  app.post("/execute-sql", async (req, res) => {
-    const { query } = req.body;
+  try {
+    const result = await pool.query(query);
+    res.json({
+      columns: result.fields.map(f => f.name),
+      rows: result.rows,
+    });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
 
-    try {
-      const result = await pool.query(query);
-      res.json({
-        columns: result.fields.map(f => f.name),
-        rows: result.rows
-      });
-    } catch (err) {
-      res.status(400).json({ error: err.message });
-    }
-  });
-
-  const PORT = process.env.PORT || 4000;
-  app.listen(PORT, () => {
-    console.log(`✅ Backend running at http://localhost:${PORT}`);
-  });
+// Start server
+const PORT = process.env.PORT || 4000;
+app.listen(PORT, () => {
+  console.log(`✅ Backend running at http://localhost:${PORT}`);
 });
