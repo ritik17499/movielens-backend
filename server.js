@@ -8,10 +8,12 @@ app.use(express.json());
 
 // Direct Supabase connection string with encoded password (@@ → %40%40)
 const pool = new Pool({
-  connectionString: "postgresql://postgres:Iamno1%40%40@db.uimqfvscwkckbxsrtlbg.supabase.co:5432/postgres",
-  ssl: {
-    rejectUnauthorized: false // Supabase requires SSL
-  }
+  user: "postgres",
+  host: "db.uimqfvscwkckbxsrtlbg.supabase.co",
+  database: "postgres",
+  password: "Iamno1@@",
+  port: 5432,
+  ssl: { rejectUnauthorized: false }
 });
 
 // Endpoint to execute SQL
