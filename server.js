@@ -6,17 +6,15 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Direct Supabase connection string with encoded password (@@ → %40%40)
+// Render-friendly Supabase connection using Transaction Pooler (IPv4-compatible)
 const pool = new Pool({
-  user: "postgres",
-  host: "db.uimqfvscwkckbxsrtlbg.supabase.co",
-  database: "postgres",
-  password: "Iamno1@@",
-  port: 5432,
-  ssl: { rejectUnauthorized: false }
+  connectionString: "postgresql://postgres:Iamno1%40%40@aws-0-us-east-1.pooler.supabase.com:6543/postgres",
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
 
-// Endpoint to execute SQL
+// Endpoint to execute SQL queries
 app.post("/execute-sql", async (req, res) => {
   const { query } = req.body;
 
@@ -31,7 +29,7 @@ app.post("/execute-sql", async (req, res) => {
   }
 });
 
-// Start server
+// Start server on Render-provided port or fallback to 4000 for local dev
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
   console.log(`✅ Backend running at http://localhost:${PORT}`);
